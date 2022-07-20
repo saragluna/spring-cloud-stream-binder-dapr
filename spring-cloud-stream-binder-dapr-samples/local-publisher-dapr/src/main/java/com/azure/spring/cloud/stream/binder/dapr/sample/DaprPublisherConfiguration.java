@@ -3,15 +3,15 @@
 
 package com.azure.spring.cloud.stream.binder.dapr.sample;
 
-import java.util.function.Supplier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Publisher configuration.
@@ -23,9 +23,22 @@ public class DaprPublisherConfiguration {
 
 	@Bean
 	public Supplier<Message<String>> supply() {
-		return () -> {
-			LOGGER.info("Sending message, sequence " + i);
-			return MessageBuilder.withPayload("Hello world, " + i++).build();
-		};
+		return () -> MessageBuilder.withPayload("Hello world, " + i++).build();
 	}
+
+	@Bean
+	public Supplier<Message<String>> supply2() {
+		return () -> MessageBuilder.withPayload("Another hello world, " + i++).build();
+	}
+
+	@Bean
+	public Consumer<Message<String>> consume() {
+		return stringMessage -> LOGGER.info("Message received, {}", stringMessage );
+	}
+
+	@Bean
+	public Consumer<Message<String>> consume2() {
+		return stringMessage -> LOGGER.info("Another message received, {}", stringMessage);
+	}
+
 }

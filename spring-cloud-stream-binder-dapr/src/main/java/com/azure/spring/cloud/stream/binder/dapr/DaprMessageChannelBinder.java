@@ -10,8 +10,8 @@ import com.azure.spring.cloud.stream.binder.dapr.properties.DaprConsumerProperti
 import com.azure.spring.cloud.stream.binder.dapr.properties.DaprExtendedBindingProperties;
 import com.azure.spring.cloud.stream.binder.dapr.properties.DaprProducerProperties;
 import com.azure.spring.cloud.stream.binder.dapr.provisioning.DaprBinderProvisioner;
+import com.azure.spring.cloud.stream.binder.dapr.subscriber.DaprSpringService;
 import io.dapr.v1.DaprGrpc;
-
 import org.springframework.cloud.stream.binder.AbstractMessageChannelBinder;
 import org.springframework.cloud.stream.binder.BinderSpecificPropertiesProvider;
 import org.springframework.cloud.stream.binder.ExtendedConsumerProperties;
@@ -35,16 +35,19 @@ public class DaprMessageChannelBinder extends
 		ExtendedPropertiesBinder<MessageChannel, DaprConsumerProperties, DaprProducerProperties> {
 
 	private final DaprGrpc.DaprStub daprStub;
+	private final DaprSpringService daprSpringService;
 	private final DaprExtendedBindingProperties bindingProperties;
 	private final DaprMessageConverter daprMessageConverter;
 
 	public DaprMessageChannelBinder(String[] headersToEmbed,
 			DaprBinderProvisioner provisioningProvider,
 			DaprGrpc.DaprStub daprStub,
+			DaprSpringService daprSpringService,
 			DaprExtendedBindingProperties bindingProperties,
 			DaprMessageConverter daprMessageConverter) {
 		super(headersToEmbed, provisioningProvider);
 		this.daprStub = daprStub;
+		this.daprSpringService = daprSpringService;
 		this.bindingProperties = bindingProperties;
 		this.daprMessageConverter = daprMessageConverter;
 	}
@@ -63,7 +66,7 @@ public class DaprMessageChannelBinder extends
 	@Override
 	protected MessageProducer createConsumerEndpoint(ConsumerDestination destination, String group,
 			ExtendedConsumerProperties<DaprConsumerProperties> consumerProperties) {
-		return new DaprMessageProducer();
+		return new DaprMessageProducer(this.daprSpringService, consumerProperties.getExtension().getPubsubName(), destination.getName());
 	}
 
 	@Override

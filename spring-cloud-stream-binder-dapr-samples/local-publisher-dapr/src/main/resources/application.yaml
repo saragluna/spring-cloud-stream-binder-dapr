@@ -2,19 +2,27 @@ spring:
   cloud:
     stream:
       function:
-        definition: supply
+        definition: supply;consume;consume2;supply2
       bindings:
         supply-out-0:
           destination: dapreventhub
+        supply2-out-0:
+          destination: eventhub-2
+        consume-in-0:
+          destination: dapreventhub
+        consume2-in-0:
+          destination: eventhub-2
       dapr:
         bindings:
           supply-out-0:
             producer:
               pubsubName: eventhubs-pubsub
-grpc:
-  server:
-    port: 9090
-dapr:
-  client.pubsub.subscriptions:
-    - pubsubName: eventhubs-pubsub
-      topic: dapreventhub
+          supply2-out-0:
+            producer:
+              pubsubName: eventhub-2
+          consume-in-0:
+            consumer:
+              pubsubName: eventhubs-pubsub
+          consume2-in-0:
+            consumer:
+              pubsubName: eventhub-2
